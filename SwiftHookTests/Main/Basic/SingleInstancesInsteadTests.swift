@@ -34,12 +34,12 @@ class SingleInstancesInsteadTests: XCTestCase {
                 XCTAssertEqual(result, argumentA + argumentB)
                 
                 // cancel
-                XCTAssertTrue(try testIsDynamicClass(object: test))
+                XCTAssertTrue(try testIsSwiftHookDynamicClass(object: test))
                 XCTAssertTrue(internalCancelHook(token: token)!)
             }
             
             // test cancel
-            XCTAssertFalse(try testIsDynamicClass(object: test))
+            XCTAssertFalse(try testIsSwiftHookDynamicClass(object: test))
             let result = test.sumFunc(a: argumentA, b: argumentB)
             XCTAssertEqual(result, argumentA + argumentB)
             XCTAssertEqual(debug_getDynamicClassHookContextsCount(), 2)
@@ -72,12 +72,12 @@ class SingleInstancesInsteadTests: XCTestCase {
                 XCTAssertEqual(result, argumentA * argumentB)
                 
                 // cancel
-                XCTAssertTrue(try testIsDynamicClass(object: test))
+                XCTAssertTrue(try testIsSwiftHookDynamicClass(object: test))
                 XCTAssertTrue(internalCancelHook(token: token)!)
             }
             
             // test cancel
-            XCTAssertFalse(try testIsDynamicClass(object: test))
+            XCTAssertFalse(try testIsSwiftHookDynamicClass(object: test))
             let result = test.sumFunc(a: argumentA, b: argumentB)
             XCTAssertEqual(result, argumentA + argumentB)
             XCTAssertEqual(debug_getDynamicClassHookContextsCount(), 2)
@@ -110,12 +110,12 @@ class SingleInstancesInsteadTests: XCTestCase {
                 XCTAssertEqual(result, argumentA * 2 + argumentB * 2)
                 
                 // cancel
-                XCTAssertTrue(try testIsDynamicClass(object: test))
+                XCTAssertTrue(try testIsSwiftHookDynamicClass(object: test))
                 XCTAssertTrue(internalCancelHook(token: token)!)
             }
             
             // test cancel
-            XCTAssertFalse(try testIsDynamicClass(object: test))
+            XCTAssertFalse(try testIsSwiftHookDynamicClass(object: test))
             let result = test.sumFunc(a: argumentA, b: argumentB)
             XCTAssertEqual(result, argumentA + argumentB)
             XCTAssertEqual(debug_getDynamicClassHookContextsCount(), 2)
@@ -153,13 +153,13 @@ class SingleInstancesInsteadTests: XCTestCase {
                 
                 // cancel
                 
-                XCTAssertTrue(try testIsDynamicClass(object: test))
+                XCTAssertTrue(try testIsSwiftHookDynamicClass(object: test))
                 XCTAssertTrue(internalCancelHook(token: token)!)
                 result.removeAll()
             }
             
             // test cancel
-            XCTAssertFalse(try testIsDynamicClass(object: test))
+            XCTAssertFalse(try testIsSwiftHookDynamicClass(object: test))
             test.execute {
                 XCTAssertEqual(result, [])
                 result.append(2)
@@ -201,13 +201,13 @@ class SingleInstancesInsteadTests: XCTestCase {
                 
                 // cancel
                 
-                XCTAssertTrue(try testIsDynamicClass(object: test))
+                XCTAssertTrue(try testIsSwiftHookDynamicClass(object: test))
                 XCTAssertTrue(internalCancelHook(token: token)!)
                 result.removeAll()
             }
             
             // test cancel
-            XCTAssertFalse(try testIsDynamicClass(object: test))
+            XCTAssertFalse(try testIsSwiftHookDynamicClass(object: test))
             test.execute {
                 XCTAssertEqual(result, [])
                 result.append(2)
@@ -254,15 +254,15 @@ class SingleInstancesInsteadTests: XCTestCase {
                 XCTAssertEqual(result, [3, 1, 5, 2, 4])
                 
                 // cancel
-                XCTAssertTrue(try testIsDynamicClass(object: test))
+                XCTAssertTrue(try testIsSwiftHookDynamicClass(object: test))
                 XCTAssertFalse(internalCancelHook(token: token1)!)
-                XCTAssertTrue(try testIsDynamicClass(object: test))
+                XCTAssertTrue(try testIsSwiftHookDynamicClass(object: test))
                 XCTAssertTrue(internalCancelHook(token: token2)!)
                 result.removeAll()
             }
             
             // test cancel
-            XCTAssertFalse(try testIsDynamicClass(object: test))
+            XCTAssertFalse(try testIsSwiftHookDynamicClass(object: test))
             test.execute {
                 XCTAssertEqual(result, [])
                 result.append(2)
@@ -310,15 +310,15 @@ class SingleInstancesInsteadTests: XCTestCase {
                 XCTAssertEqual(result, [1, 5, 2])
                 
                 // cancel
-                XCTAssertTrue(try testIsDynamicClass(object: test))
+                XCTAssertTrue(try testIsSwiftHookDynamicClass(object: test))
                 XCTAssertFalse(internalCancelHook(token: token1)!)
-                XCTAssertTrue(try testIsDynamicClass(object: test))
+                XCTAssertTrue(try testIsSwiftHookDynamicClass(object: test))
                 XCTAssertTrue(internalCancelHook(token: token2)!)
                 result.removeAll()
             }
             
             // test cancel
-            XCTAssertFalse(try testIsDynamicClass(object: test))
+            XCTAssertFalse(try testIsSwiftHookDynamicClass(object: test))
             test.execute {
                 XCTAssertEqual(result, [])
                 result.append(2)

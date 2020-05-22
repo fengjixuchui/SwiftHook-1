@@ -11,17 +11,17 @@ import XCTest
 
 class DynamicClassContextTests: XCTestCase {
     
-    let InternalWrapDynamicClass = 57
-    let InternalUnwrapNonDynamicClass = 75
+    let InternalWrapDynamicClass = 58
+    let InternalUnwrapNonDynamicClass = 76
     
     func testNormal() {
         do {
             let testObject = TestObject()
-            XCTAssertFalse(try testIsDynamicClass(object: testObject))
+            XCTAssertFalse(try testIsSwiftHookDynamicClass(object: testObject))
             _ = try wrapDynamicClass(object: testObject)
-            XCTAssertTrue(try testIsDynamicClass(object: testObject))
+            XCTAssertTrue(try testIsSwiftHookDynamicClass(object: testObject))
             try unwrapDynamicClass(object: testObject)
-            XCTAssertFalse(try testIsDynamicClass(object: testObject))
+            XCTAssertFalse(try testIsSwiftHookDynamicClass(object: testObject))
         } catch {
             XCTAssertNil(error)
         }
@@ -31,10 +31,10 @@ class DynamicClassContextTests: XCTestCase {
     func testWrapDynamicClass() {
         do {
             let testObject = TestObject()
-            XCTAssertFalse(try testIsDynamicClass(object: testObject))
+            XCTAssertFalse(try testIsSwiftHookDynamicClass(object: testObject))
             
             _ = try wrapDynamicClass(object: testObject)
-            XCTAssertTrue(try testIsDynamicClass(object: testObject))
+            XCTAssertTrue(try testIsSwiftHookDynamicClass(object: testObject))
             
             do {
                 _ = try wrapDynamicClass(object: testObject)
@@ -54,7 +54,7 @@ class DynamicClassContextTests: XCTestCase {
     func testUnwrapNonDynamicClass() {
         do {
             let testObject = TestObject()
-            XCTAssertFalse(try testIsDynamicClass(object: testObject))
+            XCTAssertFalse(try testIsSwiftHookDynamicClass(object: testObject))
             do {
                 try unwrapDynamicClass(object: testObject)
                 XCTAssertTrue(false)
@@ -65,9 +65,9 @@ class DynamicClassContextTests: XCTestCase {
                 XCTAssertNil(error)
             }
             _ = try wrapDynamicClass(object: testObject)
-            XCTAssertTrue(try testIsDynamicClass(object: testObject))
+            XCTAssertTrue(try testIsSwiftHookDynamicClass(object: testObject))
             try unwrapDynamicClass(object: testObject)
-            XCTAssertFalse(try testIsDynamicClass(object: testObject))
+            XCTAssertFalse(try testIsSwiftHookDynamicClass(object: testObject))
             do {
                 try unwrapDynamicClass(object: testObject)
                 XCTAssertTrue(false)

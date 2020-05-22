@@ -9,6 +9,7 @@
 import Foundation
 
 private let prefix = "SwiftHook_"
+private let kvoPrefix = "NSKVONotifying_"
 private var dynamicClassContextPool = Set<DynamicClassContext>()
 
 private class DynamicClassContext: Hashable {
@@ -74,6 +75,9 @@ func unwrapDynamicClass(object: AnyObject) throws {
     guard isDynamicClass(targetClass: dynamicClass) else {
         throw SwiftHookError.internalError(file: #file, line: #line)
     }
+    guard !isKVOClass(targetClass: dynamicClass) else {
+        return
+    }
     let firstContext = dynamicClassContextPool.first { (dynamicClassContext) -> Bool in
         dynamicClassContext.dynamicClass == dynamicClass
     }
@@ -84,7 +88,15 @@ func unwrapDynamicClass(object: AnyObject) throws {
 }
 
 func isDynamicClass(targetClass: AnyClass) -> Bool {
+    isSwiftHookClass(targetClass: targetClass) || isKVOClass(targetClass: targetClass)
+}
+
+private func isSwiftHookClass(targetClass: AnyClass) -> Bool {
     NSStringFromClass(targetClass).hasPrefix(prefix)
+}
+
+private func isKVOClass(targetClass: AnyClass) -> Bool {
+    NSStringFromClass(targetClass).hasPrefix(kvoPrefix)
 }
 
 // MARK: This is debug tools.

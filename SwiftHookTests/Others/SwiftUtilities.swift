@@ -50,7 +50,7 @@ func randomMode() -> HookMode {
     }
 }
 
-func testIsDynamicClass(object: AnyObject) throws -> Bool {
+func testIsSwiftHookDynamicClass(object: AnyObject) throws -> Bool {
     let isaClass: AnyClass = object_getClass(object)!
     let typeClass: AnyClass = type(of: object)
     guard typeClass == sht_getClass(object) else {
@@ -69,7 +69,7 @@ func testIsDynamicClass(object: AnyObject) throws -> Bool {
     return true
 }
 
-func testIsKVO(object: AnyObject) throws -> Bool {
+func testIsKVOClass(object: AnyObject) throws -> Bool {
     let isaClass: AnyClass = object_getClass(object)!
     let typeClass: AnyClass = type(of: object)
     guard typeClass == sht_getClass(object) else {
@@ -88,7 +88,7 @@ func testIsKVO(object: AnyObject) throws -> Bool {
     return true
 }
 
-func testIsDynamicClassThenKVO(object: AnyObject) throws -> Bool {
+func testIsSwiftHookDynamicThenKVOClass(object: AnyObject) throws -> Bool {
     let isaClass: AnyClass = object_getClass(object)!
     let typeClass: AnyClass = type(of: object)
     guard typeClass == sht_getClass(object) else {
@@ -108,31 +108,10 @@ func testIsDynamicClassThenKVO(object: AnyObject) throws -> Bool {
     return isaClassName.hasPrefix(dynamicClassPrefix)
 }
 
-func testIsKVOThenDynamicClass(object: AnyObject) throws -> Bool {
-    let isaClass: AnyClass = object_getClass(object)!
-    let typeClass: AnyClass = type(of: object)
-    guard typeClass == sht_getClass(object) else {
-        throw SwiftHookError.internalError(file: #file, line: #line)
-    }
-    let className = NSStringFromClass(isaClass)
-    guard className.hasPrefix(dynamicClassPrefix) else {
-        return false
-    }
-    guard class_getSuperclass(isaClass) == typeClass else {
-        throw SwiftHookError.internalError(file: #file, line: #line)
-    }
-    guard className == "SwiftHook_\(typeClass)" else {
-        throw SwiftHookError.internalError(file: #file, line: #line)
-    }
-    let isaClassName = String(className.dropFirst(dynamicClassPrefix.count))
-    return isaClassName.hasPrefix(kvoPrefix)
-}
-
 func testIsNormalClass(object: AnyObject) throws -> Bool {
-    return try !testIsDynamicClass(object: object) &&
-        !testIsKVO(object: object) &&
-        !testIsDynamicClassThenKVO(object: object) &&
-        !testIsKVOThenDynamicClass(object: object)
+    return try !testIsSwiftHookDynamicClass(object: object) &&
+        !testIsKVOClass(object: object) &&
+        !testIsSwiftHookDynamicThenKVOClass(object: object)
 }
 
 #if DEBUG

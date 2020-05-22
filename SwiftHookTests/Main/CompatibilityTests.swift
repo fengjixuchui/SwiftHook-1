@@ -41,11 +41,11 @@ class CompatibilityTests: XCTestCase {
                 original(number)
                 expectation.append(2)
                 } as @convention(block) ((Int) -> Void, Int) -> Void)
-            XCTAssertTrue(try testIsDynamicClass(object: object))
+            XCTAssertTrue(try testIsSwiftHookDynamicClass(object: object))
             let kvo = object.observe(\.number) { (_, _) in
                 expectation.append(3)
             }
-            XCTAssertTrue(try testIsDynamicClassThenKVO(object: object))
+            XCTAssertTrue(try testIsSwiftHookDynamicThenKVOClass(object: object))
             XCTAssertEqual(expectation, [])
             
             object.number = 9
@@ -54,13 +54,17 @@ class CompatibilityTests: XCTestCase {
             
             expectation = []
             kvo.invalidate()
-            XCTAssertTrue(try testIsDynamicClass(object: object))
+            XCTAssertTrue(try testIsSwiftHookDynamicClass(object: object))
             object.number = 10
             XCTAssertEqual(expectation, [1, 2])
             XCTAssertEqual(object.number, 10)
             
             expectation = []
-            token.cancelHook()
+            guard let hookToken = token as? HookToken else {
+                XCTAssertTrue(false)
+                return
+            }
+            XCTAssertTrue(internalCancelHook(token: hookToken)!)
             XCTAssertTrue(try testIsNormalClass(object: object))
             object.number = 11
             XCTAssertEqual(expectation, [])
@@ -80,11 +84,11 @@ class CompatibilityTests: XCTestCase {
                 original(number)
                 expectation.append(2)
                 } as @convention(block) ((Int) -> Void, Int) -> Void)
-            XCTAssertTrue(try testIsDynamicClass(object: object))
+            XCTAssertTrue(try testIsSwiftHookDynamicClass(object: object))
             let kvo = object.observe(\.number) { (_, _) in
                 expectation.append(3)
             }
-            XCTAssertTrue(try testIsDynamicClassThenKVO(object: object))
+            XCTAssertTrue(try testIsSwiftHookDynamicThenKVOClass(object: object))
             XCTAssertEqual(expectation, [])
             
             object.number = 9
@@ -92,15 +96,19 @@ class CompatibilityTests: XCTestCase {
             XCTAssertEqual(object.number, 9)
             
             expectation = []
-            token.cancelHook()
-            XCTAssertTrue(try testIsDynamicClassThenKVO(object: object))
+            guard let hookToken = token as? HookToken else {
+                XCTAssertTrue(false)
+                return
+            }
+            XCTAssertTrue(internalCancelHook(token: hookToken)!)
+            XCTAssertTrue(try testIsSwiftHookDynamicThenKVOClass(object: object))
             object.number = 10
             XCTAssertEqual(expectation, [3])
             XCTAssertEqual(object.number, 10)
             
             expectation = []
             kvo.invalidate()
-            XCTAssertTrue(try testIsDynamicClass(object: object))
+            XCTAssertTrue(try testIsSwiftHookDynamicClass(object: object))
             object.number = 11
             XCTAssertEqual(expectation, [])
             XCTAssertEqual(object.number, 11)
@@ -109,84 +117,90 @@ class CompatibilityTests: XCTestCase {
         }
     }
     
-    // TODO: crash
     func testAfterKVO() {
-//        do {
-//            let object = ObjectiveCTestObject()
-//            var expectation = [Int]()
-//            
-//            let kvo = object.observe(\.number) { (_, _) in
-//                expectation.append(3)
-//            }
-//            XCTAssertTrue(try testIsKVO(object: object))
-//            let token = try hookInstead(object: object, selector: #selector(setter: ObjectiveCTestObject.number), closure: { original, number in
-//                expectation.append(1)
-//                original(number)
-//                expectation.append(2)
-//                } as @convention(block) ((Int) -> Void, Int) -> Void)
-//            XCTAssertTrue(try testIsKVOThenDynamicClass(object: object))
-//            XCTAssertEqual(expectation, [])
-//            
-//            object.number = 9
-//            XCTAssertEqual(expectation, [1, 2, 3])
-//            XCTAssertEqual(object.number, 9)
-//            
-//            expectation = []
-//            token.cancelHook()
-//            XCTAssertTrue(try testIsKVO(object: object))
-//            object.number = 10
-//            XCTAssertEqual(expectation, [3])
-//            XCTAssertEqual(object.number, 10)
-//            
-//            expectation = []
-//            kvo.invalidate()
-//            XCTAssertTrue(try testIsNormalClass(object: object))
-//            object.number = 11
-//            XCTAssertEqual(expectation, [])
-//            XCTAssertEqual(object.number, 11)
-//        } catch {
-//            XCTAssertNil(error)
-//        }
+        do {
+            let object = ObjectiveCTestObject()
+            var expectation = [Int]()
+
+            let kvo = object.observe(\.number) { (_, _) in
+                expectation.append(3)
+            }
+            XCTAssertTrue(try testIsKVOClass(object: object))
+            let token = try hookInstead(object: object, selector: #selector(setter: ObjectiveCTestObject.number), closure: { original, number in
+                expectation.append(1)
+                original(number)
+                expectation.append(2)
+                } as @convention(block) ((Int) -> Void, Int) -> Void)
+            XCTAssertTrue(try testIsKVOClass(object: object))
+            XCTAssertEqual(expectation, [])
+
+            object.number = 9
+            XCTAssertEqual(expectation, [1, 3, 2])
+            XCTAssertEqual(object.number, 9)
+
+            expectation = []
+            guard let hookToken = token as? HookToken else {
+                XCTAssertTrue(false)
+                return
+            }
+            XCTAssertTrue(internalCancelHook(token: hookToken)!)
+            XCTAssertTrue(try testIsKVOClass(object: object))
+            object.number = 10
+            XCTAssertEqual(expectation, [3])
+            XCTAssertEqual(object.number, 10)
+
+            expectation = []
+            kvo.invalidate()
+            XCTAssertTrue(try testIsNormalClass(object: object))
+            object.number = 11
+            XCTAssertEqual(expectation, [])
+            XCTAssertEqual(object.number, 11)
+        } catch {
+            XCTAssertNil(error)
+        }
     }
     
-    // TODO: unverified
     func testAfterKVOReverseCancel() {
-//        do {
-//            let object = ObjectiveCTestObject()
-//            var expectation = [Int]()
-//
-//            let token = try hookInstead(object: object, selector: #selector(setter: ObjectiveCTestObject.number), closure: { original, number in
-//                expectation.append(1)
-//                original(number)
-//                expectation.append(2)
-//                } as @convention(block) ((Int) -> Void, Int) -> Void)
-//            XCTAssertTrue(try testIsDynamicClass(object: object))
-//            let kvo = object.observe(\.number) { (_, _) in
-//                expectation.append(3)
+        do {
+            let object = ObjectiveCTestObject()
+            var expectation = [Int]()
+
+            let kvo = object.observe(\.number) { (_, _) in
+                expectation.append(3)
+            }
+            XCTAssertTrue(try testIsKVOClass(object: object))
+            let token = try hookInstead(object: object, selector: #selector(setter: ObjectiveCTestObject.number), closure: { original, number in
+                expectation.append(1)
+                original(number)
+                expectation.append(2)
+                } as @convention(block) ((Int) -> Void, Int) -> Void)
+            XCTAssertTrue(try testIsKVOClass(object: object))
+            XCTAssertEqual(expectation, [])
+
+            object.number = 9
+            XCTAssertEqual(expectation, [1, 3, 2])
+            XCTAssertEqual(object.number, 9)
+
+            expectation = []
+            kvo.invalidate()
+            XCTAssertTrue(try testIsSwiftHookDynamicClass(object: object))
+            object.number = 11
+            XCTAssertEqual(expectation, [1, 2])
+            XCTAssertEqual(object.number, 11)
+
+//            expectation = []
+//            guard let hookToken = token as? HookToken else {
+//                XCTAssertTrue(false)
+//                return
 //            }
-//            XCTAssertTrue(try testIsDynamicClassThenKVO(object: object))
-//            XCTAssertEqual(expectation, [])
-//
-//            object.number = 9
-//            XCTAssertEqual(expectation, [1, 2, 3])
-//            XCTAssertEqual(object.number, 9)
-//
-//            expectation = []
-//            token.cancelHook()
-//            XCTAssertTrue(try testIsDynamicClassThenKVO(object: object))
+//            XCTAssertTrue(internalCancelHook(token: hookToken)!)
+//            XCTAssertTrue(try testIsNormalClass(object: object))
 //            object.number = 10
-//            XCTAssertEqual(expectation, [3])
-//            XCTAssertEqual(object.number, 10)
-//
-//            expectation = []
-//            kvo.invalidate()
-//            XCTAssertTrue(try testIsDynamicClass(object: object))
-//            object.number = 11
 //            XCTAssertEqual(expectation, [])
-//            XCTAssertEqual(object.number, 11)
-//        } catch {
-//            XCTAssertNil(error)
-//        }
+//            XCTAssertEqual(object.number, 10)
+        } catch {
+            XCTAssertNil(error)
+        }
     }
     
     // MARK: Aspects
