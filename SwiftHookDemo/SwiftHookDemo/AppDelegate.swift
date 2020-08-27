@@ -16,9 +16,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // hook
         do {
-            try hookBefore(targetClass: UIViewController.self, selector: #selector(UIViewController.viewDidAppear(_:))) {
+            try hookBefore(targetClass: UIViewController.self, selector: #selector(UIViewController.viewDidAppear(_:)), closure: { viewController, _, _ in
                 print("UIViewController did appear")
-            }
+                print("Title: \(viewController.title ?? "")")
+            } as @convention(block) (UIViewController, Selector, Bool) -> Void)
         } catch {}
         
         return true

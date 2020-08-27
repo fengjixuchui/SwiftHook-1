@@ -46,13 +46,14 @@ class SignatureTests: XCTestCase {
         let argumentTypesExpect: [String] = []
         let returnTypesExpect: String = voidSignature
         
-        XCTAssertEqual(methodSignature.argumentTypes, argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType, returnTypesExpect)
-        XCTAssertEqual(closureSignature.argumentTypes, argumentTypesClosurePrefix + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType, returnTypesExpect)
-        XCTAssertNoThrow(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .before))
-        XCTAssertNoThrow(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .after))
-        XCTAssertThrowsError(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .instead))
+        XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesMethodPrefix + argumentTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesClosurePrefix + argumentTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
     }
     
     func testNoArgsNoReturnFunc() {
@@ -72,13 +73,14 @@ class SignatureTests: XCTestCase {
         let argumentTypesExpect: [String] = []
         let returnTypesExpect: String = voidSignature
         
-        XCTAssertEqual(methodSignature.argumentTypes, argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType, returnTypesExpect)
-        XCTAssertEqual(closureSignature.argumentTypes, argumentTypesClosurePrefix + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType, returnTypesExpect)
-        XCTAssertNoThrow(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .before))
-        XCTAssertNoThrow(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .after))
-        XCTAssertThrowsError(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .instead))
+        XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesMethodPrefix + argumentTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesClosurePrefix + argumentTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
     }
     
     func testSimpleSignature() {
@@ -96,17 +98,18 @@ class SignatureTests: XCTestCase {
                 return
         }
         
-        let argumentTypesExpect: [String] = ["c", "i", "q", "s", "q", "q", "C", "I", "Q", "S", "Q", "Q", "f", "f", "d", "d", "B", "B", "r*", objectSignature, "#", selectoreSignature]
+        let argumentTypesExpect: [String] = ["c", "i", "q", "s", "q", "q", "C", "I", "Q", "S", "Q", "Q", "f", "f", "d", "d", "B", "B", "*", objectSignature, "#", selectoreSignature]
         let returnTypesExpect: String = voidSignature
         
         // If test error here, and you get [objectSignature, selectoreSignature, "c", "i", "q", "s", "q", "q", "C", "I", "Q", "S", "Q", "Q", "f", "f", "d", "d", "c", "c", "r*", objectSignature, "#", selectoreSignature]. please make sure the testing device is iPhone, not Mac.
-        XCTAssertEqual(methodSignature.argumentTypes, argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType, returnTypesExpect)
-        XCTAssertEqual(closureSignature.argumentTypes, argumentTypesClosurePrefix + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType, returnTypesExpect)
-        XCTAssertNoThrow(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .before))
-        XCTAssertNoThrow(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .after))
-        XCTAssertThrowsError(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .instead))
+        XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesMethodPrefix + argumentTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesClosurePrefix + argumentTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
     }
     
     func testStructSignature() {
@@ -126,13 +129,14 @@ class SignatureTests: XCTestCase {
         let argumentTypesExpect: [String] = ["{CGPoint=dd}", "{CGRect={CGPoint=dd}{CGSize=dd}}"]
         let returnTypesExpect: String = voidSignature
         
-        XCTAssertEqual(methodSignature.argumentTypes, argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType, returnTypesExpect)
-        XCTAssertEqual(closureSignature.argumentTypes, argumentTypesClosurePrefix + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType, returnTypesExpect)
-        XCTAssertNoThrow(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .before))
-        XCTAssertNoThrow(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .after))
-        XCTAssertThrowsError(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .instead))
+        XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesMethodPrefix + argumentTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesClosurePrefix + argumentTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
     }
     
     func testArraySignature() {
@@ -152,13 +156,14 @@ class SignatureTests: XCTestCase {
         let argumentTypesExpect: [String] = [objectSignature, objectSignature, objectSignature]
         let returnTypesExpect: String = voidSignature
         
-        XCTAssertEqual(methodSignature.argumentTypes, argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType, returnTypesExpect)
-        XCTAssertEqual(closureSignature.argumentTypes, argumentTypesClosurePrefix + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType, returnTypesExpect)
-        XCTAssertNoThrow(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .before))
-        XCTAssertNoThrow(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .after))
-        XCTAssertThrowsError(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .instead))
+        XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesMethodPrefix + argumentTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesClosurePrefix + argumentTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
     }
     
     func testDictionarySignature() {
@@ -178,13 +183,14 @@ class SignatureTests: XCTestCase {
         let argumentTypesExpect: [String] = [objectSignature, objectSignature, objectSignature]
         let returnTypesExpect: String = voidSignature
         
-        XCTAssertEqual(methodSignature.argumentTypes, argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType, returnTypesExpect)
-        XCTAssertEqual(closureSignature.argumentTypes, argumentTypesClosurePrefix + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType, returnTypesExpect)
-        XCTAssertNoThrow(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .before))
-        XCTAssertNoThrow(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .after))
-        XCTAssertThrowsError(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .instead))
+        XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesMethodPrefix + argumentTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesClosurePrefix + argumentTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
     }
     
     func testClosureSignature() {
@@ -204,13 +210,41 @@ class SignatureTests: XCTestCase {
         
         let argumentTypesExpect: [String] = [blockSignature, blockSignature, blockSignature]
         
-        XCTAssertEqual(methodSignature.argumentTypes, argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType, blockSignature)
-        XCTAssertEqual(closureSignature.argumentTypes, argumentTypesClosurePrefix + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType, voidSignature)
-        XCTAssertNoThrow(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .before))
-        XCTAssertNoThrow(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .after))
-        XCTAssertThrowsError(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .instead))
+        XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesMethodPrefix + argumentTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.name, blockSignature)
+        XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesClosurePrefix + argumentTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.name, voidSignature)
+    }
+    
+    func testPointer() {
+        guard let method = class_getInstanceMethod(TestObject.self, #selector(TestObject.testPointerSignature(pointerInt:pointerChar:pointerObj:pointerStruct:))) else {
+            XCTFail()
+            return
+        }
+        guard let methodSignature = Signature.init(method: method) else {
+            XCTFail()
+            return
+        }
+        guard let closureSignature = Signature.init(closure: {_, _, _, _ in
+            } as @convention(block) (UnsafePointer<Int>, UnsafePointer<CChar>, UnsafePointer<AnyObject>, UnsafePointer<CGRect>) -> Void as AnyObject) else {
+                XCTFail()
+                return
+        }
+        
+        let argumentTypesExpect: [String] = ["^q", "*", "^@", "^{CGRect={CGPoint=dd}{CGSize=dd}}"]
+        
+        XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesMethodPrefix + argumentTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.name, "^" + blockSignature)
+        XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesClosurePrefix + argumentTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.name, voidSignature)
     }
     
     // MARK: instead
@@ -232,13 +266,14 @@ class SignatureTests: XCTestCase {
         let argumentTypesExpect: [String] = []
         let returnTypesExpect: String = voidSignature
         
-        XCTAssertEqual(methodSignature.argumentTypes, argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType, returnTypesExpect)
-        XCTAssertEqual(closureSignature.argumentTypes, argumentTypesClosurePrefixForInstead + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType, returnTypesExpect)
-        XCTAssertThrowsError(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .before))
-        XCTAssertThrowsError(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .after))
-        XCTAssertNoThrow(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .instead))
+        XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesMethodPrefix + argumentTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesClosurePrefixForInstead + argumentTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
     }
     
     func testNoArgsNoReturnFuncForInstead() {
@@ -258,13 +293,14 @@ class SignatureTests: XCTestCase {
         let argumentTypesExpect: [String] = []
         let returnTypesExpect: String = voidSignature
         
-        XCTAssertEqual(methodSignature.argumentTypes, argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType, returnTypesExpect)
-        XCTAssertEqual(closureSignature.argumentTypes, argumentTypesClosurePrefixForInstead + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType, returnTypesExpect)
-        XCTAssertThrowsError(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .before))
-        XCTAssertThrowsError(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .after))
-        XCTAssertNoThrow(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .instead))
+        XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesMethodPrefix + argumentTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesClosurePrefixForInstead + argumentTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
     }
     
     func testSimpleSignatureForInstead() {
@@ -282,17 +318,18 @@ class SignatureTests: XCTestCase {
                 return
         }
         
-        let argumentTypesExpect: [String] = ["c", "i", "q", "s", "q", "q", "C", "I", "Q", "S", "Q", "Q", "f", "f", "d", "d", "B", "B", "r*", objectSignature, "#", selectoreSignature]
+        let argumentTypesExpect: [String] = ["c", "i", "q", "s", "q", "q", "C", "I", "Q", "S", "Q", "Q", "f", "f", "d", "d", "B", "B", "*", objectSignature, "#", selectoreSignature]
         let returnTypesExpect: String = voidSignature
         
         // If test error here, and you get [objectSignature, selectoreSignature, "c", "i", "q", "s", "q", "q", "C", "I", "Q", "S", "Q", "Q", "f", "f", "d", "d", "c", "c", "r*", objectSignature, "#", selectoreSignature]. please make sure the testing device is iPhone, not Mac.
-        XCTAssertEqual(methodSignature.argumentTypes, argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType, returnTypesExpect)
-        XCTAssertEqual(closureSignature.argumentTypes, argumentTypesClosurePrefixForInstead + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType, returnTypesExpect)
-        XCTAssertThrowsError(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .before))
-        XCTAssertThrowsError(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .after))
-        XCTAssertNoThrow(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .instead))
+        XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesMethodPrefix + argumentTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesClosurePrefixForInstead + argumentTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
     }
     
     func testStructSignatureForInstead() {
@@ -312,13 +349,14 @@ class SignatureTests: XCTestCase {
         let argumentTypesExpect: [String] = ["{CGPoint=dd}", "{CGRect={CGPoint=dd}{CGSize=dd}}"]
         let returnTypesExpect: String = voidSignature
         
-        XCTAssertEqual(methodSignature.argumentTypes, argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType, returnTypesExpect)
-        XCTAssertEqual(closureSignature.argumentTypes, argumentTypesClosurePrefixForInstead + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType, returnTypesExpect)
-        XCTAssertThrowsError(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .before))
-        XCTAssertThrowsError(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .after))
-        XCTAssertNoThrow(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .instead))
+        XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesMethodPrefix + argumentTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesClosurePrefixForInstead + argumentTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
     }
     
     func testArraySignatureForInstead() {
@@ -338,13 +376,14 @@ class SignatureTests: XCTestCase {
         let argumentTypesExpect: [String] = [objectSignature, objectSignature, objectSignature]
         let returnTypesExpect: String = voidSignature
         
-        XCTAssertEqual(methodSignature.argumentTypes, argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType, returnTypesExpect)
-        XCTAssertEqual(closureSignature.argumentTypes, argumentTypesClosurePrefixForInstead + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType, returnTypesExpect)
-        XCTAssertThrowsError(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .before))
-        XCTAssertThrowsError(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .after))
-        XCTAssertNoThrow(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .instead))
+        XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesMethodPrefix + argumentTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesClosurePrefixForInstead + argumentTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
     }
     
     func testDictionarySignatureForInstead() {
@@ -364,13 +403,14 @@ class SignatureTests: XCTestCase {
         let argumentTypesExpect: [String] = [objectSignature, objectSignature, objectSignature]
         let returnTypesExpect: String = voidSignature
         
-        XCTAssertEqual(methodSignature.argumentTypes, argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType, returnTypesExpect)
-        XCTAssertEqual(closureSignature.argumentTypes, argumentTypesClosurePrefixForInstead + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType, returnTypesExpect)
-        XCTAssertThrowsError(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .before))
-        XCTAssertThrowsError(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .after))
-        XCTAssertNoThrow(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .instead))
+        XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesMethodPrefix + argumentTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesClosurePrefixForInstead + argumentTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
     }
     
     func testClosureSignatureForInstead() {
@@ -394,12 +434,42 @@ class SignatureTests: XCTestCase {
         let argumentTypesExpect: [String] = [blockSignature, blockSignature, blockSignature]
         let returnTypesExpect: String = blockSignature
         
-        XCTAssertEqual(methodSignature.argumentTypes, argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType, returnTypesExpect)
-        XCTAssertEqual(closureSignature.argumentTypes, argumentTypesClosurePrefixForInstead + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType, returnTypesExpect)
-        XCTAssertThrowsError(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .before))
-        XCTAssertThrowsError(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .after))
-        XCTAssertNoThrow(try Signature.canHookClosureSignatureWorksByMethodSignature(closureSignature: closureSignature, methodSignature: methodSignature, mode: .instead))
+        XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesMethodPrefix + argumentTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesClosurePrefixForInstead + argumentTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
+    }
+    
+    func testPointerForInstead() {
+        guard let method = class_getClassMethod(TestObject.self, #selector(TestObject.classMethodTestPointerSignature(pointerInt:pointerChar:pointerObj:pointerStruct:))) else {
+            XCTFail()
+            return
+        }
+        guard let methodSignature = Signature.init(method: method) else {
+            XCTFail()
+            return
+        }
+        guard let closureSignature = Signature.init(closure: {_, _, _, _, _ in
+            return UnsafeMutablePointer<@convention(block) () -> Void>.init(nil)!
+            } as @convention(block) ((UnsafePointer<Int>, UnsafePointer<CChar>, UnsafePointer<AnyObject>, UnsafePointer<CGRect>) -> UnsafeMutablePointer<@convention(block) () -> Void>, UnsafePointer<Int>, UnsafePointer<CChar>, UnsafePointer<AnyObject>, UnsafePointer<CGRect>) -> UnsafeMutablePointer<@convention(block) () -> Void> as AnyObject) else {
+                XCTFail()
+                return
+        }
+        
+        let argumentTypesExpect: [String] = ["^q", "*", "^@", "^{CGRect={CGPoint=dd}{CGSize=dd}}"]
+        let returnTypesExpect: String = "^@?"
+        
+        XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesMethodPrefix + argumentTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
+            return value.name
+        }), argumentTypesClosurePrefixForInstead + argumentTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
     }
 }
