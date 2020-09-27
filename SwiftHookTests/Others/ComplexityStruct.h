@@ -19,9 +19,25 @@ struct ComplexityStruct {
         struct {
             void *p;
             struct {
+                float c;
             } s;
         } s;
     } s;
+};
+
+struct BigStruct {
+    CGRect frame1;
+    CGRect frame2;
+    CGRect frame3;
+    CGRect frame4;
+    CGRect frame5;
+    CGRect frame6;
+    CGRect frame7;
+    CGRect frame8;
+    CGRect frame9;
+    CGRect frame10;
+    CGRect frame11;
+    CGRect frame12;
 };
 
 #endif /* ComplexityStruct_h */
