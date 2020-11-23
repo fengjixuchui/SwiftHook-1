@@ -10,7 +10,7 @@
 #define ComplexityStruct_h
 #import <UIKit/UIKit.h>
 
-struct ComplexityStruct {
+typedef struct {
     int i;
     CGPoint p;
     CGRect frame;
@@ -23,9 +23,9 @@ struct ComplexityStruct {
             } s;
         } s;
     } s;
-};
+} ComplexityStruct;
 
-struct BigStruct {
+typedef struct {
     CGRect frame1;
     CGRect frame2;
     CGRect frame3;
@@ -38,6 +38,16 @@ struct BigStruct {
     CGRect frame10;
     CGRect frame11;
     CGRect frame12;
-};
+} BigStruct;
+
+typedef struct {
+    
+} EmptyStruct;
+
+typedef struct {
+    int i;
+    struct {
+    } s;
+} InternalEmptyStruct;
 
 #endif /* ComplexityStruct_h */

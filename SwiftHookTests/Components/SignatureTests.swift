@@ -23,10 +23,15 @@ class SignatureTests: XCTestCase {
     // MARK: before & after
     
     func testInvalidClosure() {
-        XCTAssertNil(Signature.init(closure: 1 as AnyObject))
-        XCTAssertNil(Signature.init(closure: {} as AnyObject))
-        XCTAssertNil(Signature.init(closure: NSObject()))
-        XCTAssertNil(Signature.init(closure: CGPoint.zero as AnyObject))
+        do {
+            _ = try Signature.init(closure: 1 as AnyObject)
+            _ = try Signature.init(closure: {} as AnyObject)
+            _ = try Signature.init(closure: NSObject())
+            _ = try Signature.init(closure: CGPoint.zero as AnyObject)
+        } catch SwiftHookError.wrongTypeForHookClosure {
+        } catch {
+            XCTFail()
+        }
     }
     
     func testNoDynamicMethod() {
@@ -34,11 +39,11 @@ class SignatureTests: XCTestCase {
             XCTFail()
             return
         }
-        guard let methodSignature = Signature.init(method: method) else {
+        guard let methodSignature = try? Signature.init(method: method) else {
             XCTFail()
             return
         }
-        guard let closureSignature = Signature.init(closure: {} as @convention(block) () -> Void as AnyObject) else {
+        guard let closureSignature = try? Signature.init(closure: {} as @convention(block) () -> Void as AnyObject) else {
             XCTFail()
             return
         }
@@ -47,13 +52,13 @@ class SignatureTests: XCTestCase {
         let returnTypesExpect: String = voidSignature
         
         XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.code, returnTypesExpect)
         XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesClosurePrefix + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.code, returnTypesExpect)
     }
     
     func testNoArgsNoReturnFunc() {
@@ -61,11 +66,11 @@ class SignatureTests: XCTestCase {
             XCTFail()
             return
         }
-        guard let methodSignature = Signature.init(method: method) else {
+        guard let methodSignature = try? Signature.init(method: method) else {
             XCTFail()
             return
         }
-        guard let closureSignature = Signature.init(closure: {} as @convention(block) () -> Void as AnyObject) else {
+        guard let closureSignature = try? Signature.init(closure: {} as @convention(block) () -> Void as AnyObject) else {
             XCTFail()
             return
         }
@@ -74,13 +79,13 @@ class SignatureTests: XCTestCase {
         let returnTypesExpect: String = voidSignature
         
         XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.code, returnTypesExpect)
         XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesClosurePrefix + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.code, returnTypesExpect)
     }
     
     func testSimpleSignature() {
@@ -88,11 +93,11 @@ class SignatureTests: XCTestCase {
             XCTFail()
             return
         }
-        guard let methodSignature = Signature.init(method: method) else {
+        guard let methodSignature = try? Signature.init(method: method) else {
             XCTFail()
             return
         }
-        guard let closureSignature = Signature.init(closure: {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _  in
+        guard let closureSignature = try? Signature.init(closure: {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _  in
             } as @convention(block) (CChar, CInt, Int, CShort, CLong, CLongLong, CUnsignedChar, CUnsignedInt, UInt, CUnsignedShort, CUnsignedLong, CUnsignedLongLong, CFloat, Float, CDouble, Double, CBool, Bool, UnsafePointer<CChar>, AnyObject, AnyClass, Selector) -> Void as AnyObject) else {
                 XCTFail()
                 return
@@ -103,13 +108,13 @@ class SignatureTests: XCTestCase {
         
         // If test error here, and you get [objectSignature, selectoreSignature, "c", "i", "q", "s", "q", "q", "C", "I", "Q", "S", "Q", "Q", "f", "f", "d", "d", "c", "c", "r*", objectSignature, "#", selectoreSignature]. please make sure the testing device is iPhone, not Mac.
         XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.code, returnTypesExpect)
         XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesClosurePrefix + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.code, returnTypesExpect)
     }
     
     func testStructSignature() {
@@ -117,11 +122,11 @@ class SignatureTests: XCTestCase {
             XCTFail()
             return
         }
-        guard let methodSignature = Signature.init(method: method) else {
+        guard let methodSignature = try? Signature.init(method: method) else {
             XCTFail()
             return
         }
-        guard let closureSignature = Signature.init(closure: {_, _ in } as @convention(block) (CGPoint, CGRect) -> Void as AnyObject) else {
+        guard let closureSignature = try? Signature.init(closure: {_, _ in } as @convention(block) (CGPoint, CGRect) -> Void as AnyObject) else {
             XCTFail()
             return
         }
@@ -130,13 +135,13 @@ class SignatureTests: XCTestCase {
         let returnTypesExpect: String = voidSignature
         
         XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.code, returnTypesExpect)
         XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesClosurePrefix + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.code, returnTypesExpect)
     }
     
     func testArraySignature() {
@@ -144,11 +149,11 @@ class SignatureTests: XCTestCase {
             XCTFail()
             return
         }
-        guard let methodSignature = Signature.init(method: method) else {
+        guard let methodSignature = try? Signature.init(method: method) else {
             XCTFail()
             return
         }
-        guard let closureSignature = Signature.init(closure: {_, _, _ in } as @convention(block) ([Any], [Int], [CGRect]) -> Void as AnyObject) else {
+        guard let closureSignature = try? Signature.init(closure: {_, _, _ in } as @convention(block) ([Any], [Int], [CGRect]) -> Void as AnyObject) else {
             XCTFail()
             return
         }
@@ -157,13 +162,13 @@ class SignatureTests: XCTestCase {
         let returnTypesExpect: String = voidSignature
         
         XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.code, returnTypesExpect)
         XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesClosurePrefix + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.code, returnTypesExpect)
     }
     
     func testDictionarySignature() {
@@ -171,11 +176,11 @@ class SignatureTests: XCTestCase {
             XCTFail()
             return
         }
-        guard let methodSignature = Signature.init(method: method) else {
+        guard let methodSignature = try? Signature.init(method: method) else {
             XCTFail()
             return
         }
-        guard let closureSignature = Signature.init(closure: {_, _, _ in } as @convention(block) ([String: Any], [String: Int], [String: CGRect]) -> Void as AnyObject) else {
+        guard let closureSignature = try? Signature.init(closure: {_, _, _ in } as @convention(block) ([String: Any], [String: Int], [String: CGRect]) -> Void as AnyObject) else {
             XCTFail()
             return
         }
@@ -184,13 +189,13 @@ class SignatureTests: XCTestCase {
         let returnTypesExpect: String = voidSignature
         
         XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.code, returnTypesExpect)
         XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesClosurePrefix + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.code, returnTypesExpect)
     }
     
     func testClosureSignature() {
@@ -198,11 +203,11 @@ class SignatureTests: XCTestCase {
             XCTFail()
             return
         }
-        guard let methodSignature = Signature.init(method: method) else {
+        guard let methodSignature = try? Signature.init(method: method) else {
             XCTFail()
             return
         }
-        guard let closureSignature = Signature.init(closure: {_, _, _ in
+        guard let closureSignature = try? Signature.init(closure: {_, _, _ in
             } as @convention(block) (() -> Void, (Int, AnyObject) -> Int, (Int, AnyObject) -> AnyObject) -> Void as AnyObject) else {
                 XCTFail()
                 return
@@ -211,13 +216,13 @@ class SignatureTests: XCTestCase {
         let argumentTypesExpect: [String] = [blockSignature, blockSignature, blockSignature]
         
         XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType.name, blockSignature)
+        XCTAssertEqual(methodSignature.returnType.code, blockSignature)
         XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesClosurePrefix + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType.name, voidSignature)
+        XCTAssertEqual(closureSignature.returnType.code, voidSignature)
     }
     
     func testPointer() {
@@ -225,11 +230,11 @@ class SignatureTests: XCTestCase {
             XCTFail()
             return
         }
-        guard let methodSignature = Signature.init(method: method) else {
+        guard let methodSignature = try? Signature.init(method: method) else {
             XCTFail()
             return
         }
-        guard let closureSignature = Signature.init(closure: {_, _, _, _ in
+        guard let closureSignature = try? Signature.init(closure: {_, _, _, _ in
             } as @convention(block) (UnsafePointer<Int>, UnsafePointer<CChar>, UnsafePointer<AnyObject>, UnsafePointer<CGRect>) -> Void as AnyObject) else {
                 XCTFail()
                 return
@@ -238,13 +243,13 @@ class SignatureTests: XCTestCase {
         let argumentTypesExpect: [String] = ["^q", "*", "^@", "^{CGRect={CGPoint=dd}{CGSize=dd}}"]
         
         XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType.name, "^" + blockSignature)
+        XCTAssertEqual(methodSignature.returnType.code, "^" + blockSignature)
         XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesClosurePrefix + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType.name, voidSignature)
+        XCTAssertEqual(closureSignature.returnType.code, voidSignature)
     }
     
     // MARK: instead
@@ -254,11 +259,11 @@ class SignatureTests: XCTestCase {
             XCTFail()
             return
         }
-        guard let methodSignature = Signature.init(method: method) else {
+        guard let methodSignature = try? Signature.init(method: method) else {
             XCTFail()
             return
         }
-        guard let closureSignature = Signature.init(closure: {_ in } as @convention(block) (() -> Void) -> Void as AnyObject) else {
+        guard let closureSignature = try? Signature.init(closure: {_ in } as @convention(block) (() -> Void) -> Void as AnyObject) else {
             XCTFail()
             return
         }
@@ -267,13 +272,13 @@ class SignatureTests: XCTestCase {
         let returnTypesExpect: String = voidSignature
         
         XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.code, returnTypesExpect)
         XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesClosurePrefixForInstead + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.code, returnTypesExpect)
     }
     
     func testNoArgsNoReturnFuncForInstead() {
@@ -281,11 +286,11 @@ class SignatureTests: XCTestCase {
             XCTFail()
             return
         }
-        guard let methodSignature = Signature.init(method: method) else {
+        guard let methodSignature = try? Signature.init(method: method) else {
             XCTFail()
             return
         }
-        guard let closureSignature = Signature.init(closure: {_ in } as @convention(block) (() -> Void) -> Void as AnyObject) else {
+        guard let closureSignature = try? Signature.init(closure: {_ in } as @convention(block) (() -> Void) -> Void as AnyObject) else {
             XCTFail()
             return
         }
@@ -294,13 +299,13 @@ class SignatureTests: XCTestCase {
         let returnTypesExpect: String = voidSignature
         
         XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.code, returnTypesExpect)
         XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesClosurePrefixForInstead + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.code, returnTypesExpect)
     }
     
     func testSimpleSignatureForInstead() {
@@ -308,11 +313,11 @@ class SignatureTests: XCTestCase {
             XCTFail()
             return
         }
-        guard let methodSignature = Signature.init(method: method) else {
+        guard let methodSignature = try? Signature.init(method: method) else {
             XCTFail()
             return
         }
-        guard let closureSignature = Signature.init(closure: {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _  in
+        guard let closureSignature = try? Signature.init(closure: {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _  in
             } as @convention(block) ((CChar, CInt, Int, CShort, CLong, CLongLong, CUnsignedChar, CUnsignedInt, UInt, CUnsignedShort, CUnsignedLong, CUnsignedLongLong, CFloat, Float, CDouble, Double, CBool, Bool, UnsafePointer<CChar>, AnyObject, AnyClass, Selector) -> Void, CChar, CInt, Int, CShort, CLong, CLongLong, CUnsignedChar, CUnsignedInt, UInt, CUnsignedShort, CUnsignedLong, CUnsignedLongLong, CFloat, Float, CDouble, Double, CBool, Bool, UnsafePointer<CChar>, AnyObject, AnyClass, Selector) -> Void as AnyObject) else {
                 XCTFail()
                 return
@@ -323,13 +328,13 @@ class SignatureTests: XCTestCase {
         
         // If test error here, and you get [objectSignature, selectoreSignature, "c", "i", "q", "s", "q", "q", "C", "I", "Q", "S", "Q", "Q", "f", "f", "d", "d", "c", "c", "r*", objectSignature, "#", selectoreSignature]. please make sure the testing device is iPhone, not Mac.
         XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.code, returnTypesExpect)
         XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesClosurePrefixForInstead + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.code, returnTypesExpect)
     }
     
     func testStructSignatureForInstead() {
@@ -337,11 +342,11 @@ class SignatureTests: XCTestCase {
             XCTFail()
             return
         }
-        guard let methodSignature = Signature.init(method: method) else {
+        guard let methodSignature = try? Signature.init(method: method) else {
             XCTFail()
             return
         }
-        guard let closureSignature = Signature.init(closure: {_, _, _ in } as @convention(block) ((CGPoint, CGRect) -> Void, CGPoint, CGRect) -> Void as AnyObject) else {
+        guard let closureSignature = try? Signature.init(closure: {_, _, _ in } as @convention(block) ((CGPoint, CGRect) -> Void, CGPoint, CGRect) -> Void as AnyObject) else {
             XCTFail()
             return
         }
@@ -350,13 +355,13 @@ class SignatureTests: XCTestCase {
         let returnTypesExpect: String = voidSignature
         
         XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.code, returnTypesExpect)
         XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesClosurePrefixForInstead + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.code, returnTypesExpect)
     }
     
     func testArraySignatureForInstead() {
@@ -364,11 +369,11 @@ class SignatureTests: XCTestCase {
             XCTFail()
             return
         }
-        guard let methodSignature = Signature.init(method: method) else {
+        guard let methodSignature = try? Signature.init(method: method) else {
             XCTFail()
             return
         }
-        guard let closureSignature = Signature.init(closure: {_, _, _, _ in } as @convention(block) (([Any], [Int], [CGRect]) -> Void, [Any], [Int], [CGRect]) -> Void as AnyObject) else {
+        guard let closureSignature = try? Signature.init(closure: {_, _, _, _ in } as @convention(block) (([Any], [Int], [CGRect]) -> Void, [Any], [Int], [CGRect]) -> Void as AnyObject) else {
             XCTFail()
             return
         }
@@ -377,13 +382,13 @@ class SignatureTests: XCTestCase {
         let returnTypesExpect: String = voidSignature
         
         XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.code, returnTypesExpect)
         XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesClosurePrefixForInstead + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.code, returnTypesExpect)
     }
     
     func testDictionarySignatureForInstead() {
@@ -391,11 +396,11 @@ class SignatureTests: XCTestCase {
             XCTFail()
             return
         }
-        guard let methodSignature = Signature.init(method: method) else {
+        guard let methodSignature = try? Signature.init(method: method) else {
             XCTFail()
             return
         }
-        guard let closureSignature = Signature.init(closure: {_, _, _, _ in } as @convention(block) (([String: Any], [String: Int], [String: CGRect]) -> Void, [String: Any], [String: Int], [String: CGRect]) -> Void as AnyObject) else {
+        guard let closureSignature = try? Signature.init(closure: {_, _, _, _ in } as @convention(block) (([String: Any], [String: Int], [String: CGRect]) -> Void, [String: Any], [String: Int], [String: CGRect]) -> Void as AnyObject) else {
             XCTFail()
             return
         }
@@ -404,13 +409,13 @@ class SignatureTests: XCTestCase {
         let returnTypesExpect: String = voidSignature
         
         XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.code, returnTypesExpect)
         XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesClosurePrefixForInstead + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.code, returnTypesExpect)
     }
     
     func testClosureSignatureForInstead() {
@@ -418,11 +423,11 @@ class SignatureTests: XCTestCase {
             XCTFail()
             return
         }
-        guard let methodSignature = Signature.init(method: method) else {
+        guard let methodSignature = try? Signature.init(method: method) else {
             XCTFail()
             return
         }
-        guard let closureSignature = Signature.init(closure: {_, _, _, _ in
+        guard let closureSignature = try? Signature.init(closure: {_, _, _, _ in
             return {_, _ in
                 return NSObject()
             }
@@ -435,13 +440,13 @@ class SignatureTests: XCTestCase {
         let returnTypesExpect: String = blockSignature
         
         XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.code, returnTypesExpect)
         XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesClosurePrefixForInstead + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.code, returnTypesExpect)
     }
     
     func testPointerForInstead() {
@@ -449,11 +454,11 @@ class SignatureTests: XCTestCase {
             XCTFail()
             return
         }
-        guard let methodSignature = Signature.init(method: method) else {
+        guard let methodSignature = try? Signature.init(method: method) else {
             XCTFail()
             return
         }
-        guard let closureSignature = Signature.init(closure: {_, _, _, _, _ in
+        guard let closureSignature = try? Signature.init(closure: {_, _, _, _, _ in
             return UnsafeMutablePointer<@convention(block) () -> Void>.init(nil)!
             } as @convention(block) ((UnsafePointer<Int>, UnsafePointer<CChar>, UnsafePointer<AnyObject>, UnsafePointer<CGRect>) -> UnsafeMutablePointer<@convention(block) () -> Void>, UnsafePointer<Int>, UnsafePointer<CChar>, UnsafePointer<AnyObject>, UnsafePointer<CGRect>) -> UnsafeMutablePointer<@convention(block) () -> Void> as AnyObject) else {
                 XCTFail()
@@ -464,12 +469,12 @@ class SignatureTests: XCTestCase {
         let returnTypesExpect: String = "^@?"
         
         XCTAssertEqual(methodSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesMethodPrefix + argumentTypesExpect)
-        XCTAssertEqual(methodSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(methodSignature.returnType.code, returnTypesExpect)
         XCTAssertEqual(closureSignature.argumentTypes.map({ (value) -> String in
-            return value.name
+            return value.code
         }), argumentTypesClosurePrefixForInstead + argumentTypesExpect)
-        XCTAssertEqual(closureSignature.returnType.name, returnTypesExpect)
+        XCTAssertEqual(closureSignature.returnType.code, returnTypesExpect)
     }
 }

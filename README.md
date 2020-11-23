@@ -1,6 +1,6 @@
 # What is this?
 
-A safe, easy, powerful and efficient hook framework for iOS (Support Swift and Objective-C).
+A safe, easy, powerful and efficient hook library for iOS (Support Swift and Objective-C).
 
 It’s based on iOS runtime and [libffi](https://github.com/libffi/libffi).
 
@@ -176,3 +176,7 @@ BTW, **Respect to Aspects!**
 - iOS 10.0+ (Unverified for macOS, tvOS, watchOS)
 - Xcode 11+
 - Swift 5.0+
+
+# Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/623637646/SwiftHook.svg)](https://starchart.cc/623637646/SwiftHook)

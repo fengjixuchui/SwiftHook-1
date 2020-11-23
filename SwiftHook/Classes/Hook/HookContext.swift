@@ -9,8 +9,6 @@
 import Foundation
 import libffi_iOS
 
-// TODO: put methodCalledFunction and insteadClosureCalledFunction in a independent file.
-
 private func methodCalledFunction(cif: UnsafeMutablePointer<ffi_cif>?, ret: UnsafeMutableRawPointer?, args: UnsafeMutablePointer<UnsafeMutableRawPointer?>?, userdata: UnsafeMutableRawPointer?) {
     
     // Parameters
@@ -35,7 +33,7 @@ private func methodCalledFunction(cif: UnsafeMutablePointer<ffi_cif>?, ret: Unsa
         // preparation for instead
         var insteadClosure = createInsteadClosure(targetIMP: hookContext.insteadClosureContext.targetIMP, objectPointer: argsBuffer[0]!, selectorPointer: argsBuffer[1]!, currentHookClosure: hookClosure)
         let nargs = Int(hookContext.insteadCifContext.cif.pointee.nargs)
-        var insteadHookArgsBuffer: UnsafeMutableBufferPointer<UnsafeMutableRawPointer?> = UnsafeMutableBufferPointer.allocate(capacity: nargs)
+        let insteadHookArgsBuffer: UnsafeMutableBufferPointer<UnsafeMutableRawPointer?> = UnsafeMutableBufferPointer.allocate(capacity: nargs)
         defer {
             insteadHookArgsBuffer.deallocate()
         }
@@ -83,7 +81,7 @@ private func insteadClosureCalledFunction(cif: UnsafeMutablePointer<ffi_cif>?, r
         insteadContext.currentHookClosure === insteadHookClosures.first {
         // call original method
         let nargs = Int(hookContext.methodCifContext.cif.pointee.nargs)
-        var methodArgsBuffer: UnsafeMutableBufferPointer<UnsafeMutableRawPointer?> = UnsafeMutableBufferPointer.allocate(capacity: nargs)
+        let methodArgsBuffer: UnsafeMutableBufferPointer<UnsafeMutableRawPointer?> = UnsafeMutableBufferPointer.allocate(capacity: nargs)
         defer {
             methodArgsBuffer.deallocate()
         }
@@ -105,7 +103,7 @@ private func insteadClosureCalledFunction(cif: UnsafeMutablePointer<ffi_cif>?, r
         }
         var hookClosure = insteadHookClosures[lastIndex - 1]
         let nargs = Int(hookContext.insteadCifContext.cif.pointee.nargs)
-        var hookArgsBuffer: UnsafeMutableBufferPointer<UnsafeMutableRawPointer?> = UnsafeMutableBufferPointer.allocate(capacity: nargs)
+        let hookArgsBuffer: UnsafeMutableBufferPointer<UnsafeMutableRawPointer?> = UnsafeMutableBufferPointer.allocate(capacity: nargs)
         defer {
             hookArgsBuffer.deallocate()
         }
@@ -206,9 +204,7 @@ class HookContext {
         self.isHookingDealloc = selector == deallocSelector
         
         // original
-        guard let methodSignature = Signature(method: self.method) else {
-            throw SwiftHookError.internalError(file: #file, line: #line)
-        }
+        let methodSignature = try Signature(method: self.method)
         self.methodOriginalIMP = method_getImplementation(self.method)
         self.methodCifContext = try FFICIFContext.init(signature: methodSignature)
         
