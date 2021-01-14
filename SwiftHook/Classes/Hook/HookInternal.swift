@@ -14,44 +14,34 @@ enum HookMode {
     case instead
 }
 
-private var hookContextPool = Set<HookContext>()
-
-private func getHookContext(targetClass: AnyClass, selector: Selector) throws -> HookContext {
-    if getMethodWithoutSearchingSuperClasses(targetClass: targetClass, selector: selector) == nil {
-        try overrideSuperMethod(targetClass: targetClass, selector: selector)
-    }
-    var hookContext: HookContext! = hookContextPool.first(where: { (element) -> Bool in
-        element.targetClass == targetClass && element.selector == selector
-    })
-    if hookContext == nil {
-        hookContext = try HookContext.init(targetClass: targetClass, selector: selector)
-        hookContextPool.insert(hookContext)
-    }
-    return hookContext
-}
-
 func internalHook(targetClass: AnyClass, selector: Selector, mode: HookMode, hookClosure: AnyObject) throws -> HookToken {
-    let hookContext = try getHookContext(targetClass: targetClass, selector: selector)
+    let hookContext = try getHookContext(targetClass: targetClass, selector: selector, isSpecifiedInstance: false)
     try hookContext.append(hookClosure: hookClosure, mode: mode)
     return HookToken(hookContext: hookContext, hookClosure: hookClosure, mode: mode)
 }
 
 func internalHook(object: AnyObject, selector: Selector, mode: HookMode, hookClosure: AnyObject) throws -> HookToken {
-    guard let baseClass = object_getClass(object) else {
-        throw SwiftHookError.internalError(file: #file, line: #line)
+    let targetClass: AnyClass
+    if let object = object as? NSObject {
+        // use KVO for specified instance hook
+        try wrapKVOIfNeeded(object: object, selector: selector)
+        guard let KVOedClass = object_getClass(object) else {
+            throw SwiftHookError.internalError(file: #file, line: #line)
+        }
+        targetClass = KVOedClass
+    } else {
+        // create dynamic class for specified instance hook
+        guard let baseClass = object_getClass(object) else {
+            throw SwiftHookError.internalError(file: #file, line: #line)
+        }
+        targetClass = isDynamicClass(targetClass: baseClass) ? baseClass : try wrapDynamicClass(object: object)
     }
-    // create dynamic class for specified instance hook
-    let targetClass: AnyClass = isDynamicClass(targetClass: baseClass) ? baseClass : try wrapDynamicClass(object: object)
     // hook
-    let hookContext = try getHookContext(targetClass: targetClass, selector: selector)
+    let hookContext = try getHookContext(targetClass: targetClass, selector: selector, isSpecifiedInstance: true)
     var token = HookToken(hookContext: hookContext, hookClosure: hookClosure, mode: mode)
     token.hookObject = object
     // set hook closure
     try appendHookClosure(object: object, selector: selector, hookClosure: hookClosure, mode: mode)
-    // Hook dealloc
-    _ = hookDeallocAfterByDelegate(object: object, closure: {
-        _ = internalCancelHook(token: token)
-        } as @convention(block) () -> Void as AnyObject)
     return token
 }
 
@@ -59,7 +49,7 @@ func internalHook(object: AnyObject, selector: Selector, mode: HookMode, hookClo
  Cancel hook.
  
  # Case 1: Hook instance
- 1. Return true if object is reset to previous class.
+ 1. Return true if object has tried to reset to previous class.
  2. Return false if object is not reset to previous class.
  3. Returen nil means some issues like token already canceled.
  
@@ -75,74 +65,68 @@ func internalHook(object: AnyObject, selector: Selector, mode: HookMode, hookClo
  1. always return nil
  */
 
-func internalCancelHook(token: HookToken) -> Bool? {
-    do {
-        guard let hookContext = token.hookContext else {
+func internalCancelHook(token: HookToken) throws -> Bool? {
+    guard let hookContext = token.hookContext else {
+        // This token has been cancelled.
+        return nil
+    }
+    if hookContext.isSpecifiedInstance {
+        // This hook is for specified instance
+        guard let hookObject = token.hookObject else {
+            // The object has been deinit.
             return nil
         }
         guard let hookClosure = token.hookClosure else {
+            // Token has been canceled.
             return nil
         }
-        if isDynamicClass(targetClass: hookContext.targetClass) {
-            guard let hookObject = token.hookObject else {
-                return nil
-            }
-            try removeHookClosure(object: hookObject, selector: hookContext.selector, hookClosure: hookClosure, mode: token.mode)
-            guard object_getClass(hookObject) == hookContext.targetClass else {
-                // Maybe observe by KVO after hook by SwiftHook.
-                return false
-            }
-            guard let isIMPChanged = isIMPChanged(hookContext: hookContext) else {
-                throw SwiftHookError.internalError(file: #file, line: #line)
-            }
-            guard !isIMPChanged else {
-                return false
-            }
-            guard isHookClosuresEmpty(object: hookObject) else {
-                return false
-            }
-            try unwrapDynamicClass(object: hookObject)
-            return true
-        } else {
-            try hookContext.remove(hookClosure: hookClosure, mode: token.mode)
-            guard let isIMPChanged = isIMPChanged(hookContext: hookContext) else {
-                throw SwiftHookError.internalError(file: #file, line: #line)
-            }
-            guard !isIMPChanged else {
-                return false
-            }
-            guard hookContext.isHoolClosurePoolEmpty() else {
-                return false
-            }
-            hookContextPool.remove(hookContext)
-            return true
+        try removeHookClosure(object: hookObject, selector: hookContext.selector, hookClosure: hookClosure, mode: token.mode)
+        
+        guard object_getClass(hookObject) == hookContext.targetClass else {
+            // The class is changed after hooking by SwiftHook.
+            return false
         }
-    } catch {
-        assert(false)
+        guard !(try isIMPChanged(hookContext: hookContext)) else {
+            // The IMP is changed after hooking by SwiftHook.
+            return false
+        }
+        guard isHookClosuresEmpty(object: hookObject) else {
+            // There are still some hooks on this object.
+            return false
+        }
+        if let object = hookObject as? NSObject {
+            unwrapKVOIfNeeded(object: object)
+        } else {
+            try unwrapDynamicClass(object: hookObject)
+        }
+        // Can't call `removeHookContext(hookContext: hookContext)` to remove the hookContext because we don't know if there are any objects needed this hookContext
+        return true
+    } else {
+        // This hook is for all instance or class method
+        guard let hookClosure = token.hookClosure else {
+            throw SwiftHookError.internalError(file: #file, line: #line)
+        }
+        try hookContext.remove(hookClosure: hookClosure, mode: token.mode)
+        guard !(try isIMPChanged(hookContext: hookContext)) else {
+            // The IMP is changed after hooking by SwiftHook.
+            return false
+        }
+        guard hookContext.isHoolClosurePoolEmpty() else {
+            // There are still some hooks on this hookContext.
+            return false
+        }
+        removeHookContext(hookContext: hookContext)
+        return true
     }
-    return nil
 }
 
 /**
  Is IMP changed. return nil if has some error
  */
-private func isIMPChanged(hookContext: HookContext) -> Bool? {
+private func isIMPChanged(hookContext: HookContext) throws -> Bool {
     guard let currentMethod = getMethodWithoutSearchingSuperClasses(targetClass: hookContext.targetClass, selector: hookContext.selector) else {
-        return nil
+        throw SwiftHookError.internalError(file: #file, line: #line)
     }
     return hookContext.method != currentMethod ||
         method_getImplementation(currentMethod) != hookContext.methodClosureContext.targetIMP
 }
-
-// MARK: This is debug tools.
-#if DEBUG
-func debug_getNormalClassHookContextsCount() -> Int {
-    var count = 0
-    for item in hookContextPool {
-        if !isDynamicClass(targetClass: item.targetClass) {
-            count += 1
-        }
-    }
-    return count
-}
-#endif

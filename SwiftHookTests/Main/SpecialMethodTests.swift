@@ -19,7 +19,7 @@ class SpecialMethodTests: XCTestCase {
                 object.deallocExecution = {
                     executed.append(0)
                 }
-                XCTAssertFalse(try testIsDynamicClass(object: object))
+                XCTAssertTrue(try testGetObjectType(object: object) == .normal)
                 
                 // before
                 try hookBefore(object: object, selector: deallocSelector) {
@@ -51,7 +51,7 @@ class SpecialMethodTests: XCTestCase {
                 try hookDeallocAfterByTail(object: object, closure: {
                     executed.append(5)
                 })
-                XCTAssertTrue(try testIsDynamicClass(object: object))
+                XCTAssertTrue(try testGetObjectType(object: object) == .KVOed(mode: .swiftHook))
                 
                 XCTAssertEqual(executed, [])
             }
@@ -70,11 +70,11 @@ class SpecialMethodTests: XCTestCase {
                     executed.append(0)
                 }
                 
-                XCTAssertFalse(try testIsDynamicClass(object: object))
+                XCTAssertTrue(try testGetObjectType(object: object) == .normal)
                 try hookDeallocAfterByTail(object: object, closure: {
                     executed.append(2)
                 })
-                XCTAssertFalse(try testIsDynamicClass(object: object))
+                XCTAssertTrue(try testGetObjectType(object: object) == .normal)
                 
                 XCTAssertEqual(executed, [])
             }
@@ -145,9 +145,9 @@ class SpecialMethodTests: XCTestCase {
                     return
                 }
                 if index == tokens.count - 1 {
-                    XCTAssertTrue(internalCancelHook(token: hookToken)!)
+                    XCTAssertTrue(try internalCancelHook(token: hookToken)!)
                 } else {
-                    XCTAssertFalse(internalCancelHook(token: hookToken)!)
+                    XCTAssertFalse(try internalCancelHook(token: hookToken)!)
                 }
             }
         } catch {

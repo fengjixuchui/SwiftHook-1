@@ -23,19 +23,6 @@ public enum SwiftHookError: Error {
 
     case pureSwiftObjectDealloc // Technologically can't hook dealloc method for pure Swift Object with swizzling. Please use "hookDeallocAfterByTail" to hook pure swift object's dealloc method.
 
-    /*
-     // TODO: Support hook KVO'ed Object.
-     
-     Cases:
-     1. Observe one object by KVO.
-     2. Hook this object by SwiftHook
-     3. Cancel KVO
-     4. Make sure SwiftHook works fine.
-     
-     Latest idea. Set the object a new subclass. The subclass copy superclass's extra-bytes to avoid KVO crash.
-     */
-    case KVOedObject // Unsupport to hook KVO'ed Object
-
     case noRespondSelector // Can't find the method by the selector from the class.
 
     case emptyStruct // The struct of the method's args or return value is empty, This case can't be compatible  with libffi. Please check the parameters or return type of the method.
@@ -72,7 +59,7 @@ struct HookToken: Token {
     
     func cancelHook() {
         swiftHookSerialQueue.sync {
-            _ = internalCancelHook(token: self)
+            _ = try? internalCancelHook(token: self)
         }
     }
 }
@@ -92,9 +79,9 @@ public func hookBefore(object: AnyObject, selector: Selector, closure: @escaping
  */
 @discardableResult
 public func hookBefore(object: AnyObject, selector: Selector, closure: Any) throws -> Token {
-    try parametersCheck(object: object, selector: selector, mode: .before, closure: closure as AnyObject)
     return try swiftHookSerialQueue.sync {
-        try internalHook(object: object, selector: selector, mode: .before, hookClosure: closure as AnyObject)
+        try parametersCheck(object: object, selector: selector, mode: .before, closure: closure as AnyObject)
+        return try internalHook(object: object, selector: selector, mode: .before, hookClosure: closure as AnyObject)
     }
 }
 
@@ -111,9 +98,9 @@ public func hookAfter(object: AnyObject, selector: Selector, closure: @escaping 
  */
 @discardableResult
 public func hookAfter(object: AnyObject, selector: Selector, closure: Any) throws -> Token {
-    try parametersCheck(object: object, selector: selector, mode: .after, closure: closure as AnyObject)
     return try swiftHookSerialQueue.sync {
-        try internalHook(object: object, selector: selector, mode: .after, hookClosure: closure as AnyObject)
+        try parametersCheck(object: object, selector: selector, mode: .after, closure: closure as AnyObject)
+        return try internalHook(object: object, selector: selector, mode: .after, hookClosure: closure as AnyObject)
     }
 }
 
@@ -122,9 +109,9 @@ public func hookAfter(object: AnyObject, selector: Selector, closure: Any) throw
  */
 @discardableResult
 public func hookInstead(object: AnyObject, selector: Selector, closure: Any) throws -> Token {
-    try parametersCheck(object: object, selector: selector, mode: .instead, closure: closure as AnyObject)
     return try swiftHookSerialQueue.sync {
-        try internalHook(object: object, selector: selector, mode: .instead, hookClosure: closure as AnyObject)
+        try parametersCheck(object: object, selector: selector, mode: .instead, closure: closure as AnyObject)
+        return try internalHook(object: object, selector: selector, mode: .instead, hookClosure: closure as AnyObject)
     }
 }
 
@@ -143,9 +130,9 @@ Perform the hook closure before executing the method of all instances of the cla
 */
 @discardableResult
 public func hookBefore(targetClass: AnyClass, selector: Selector, closure: Any) throws -> Token {
-    try parametersCheck(targetClass: targetClass, selector: selector, mode: .before, closure: closure as AnyObject)
     return try swiftHookSerialQueue.sync {
-        try internalHook(targetClass: targetClass, selector: selector, mode: .before, hookClosure: closure as AnyObject)
+        try parametersCheck(targetClass: targetClass, selector: selector, mode: .before, closure: closure as AnyObject)
+        return try internalHook(targetClass: targetClass, selector: selector, mode: .before, hookClosure: closure as AnyObject)
     }
 }
 
@@ -162,9 +149,9 @@ Perform the hook closure after executing the method of all instances of the clas
 */
 @discardableResult
 public func hookAfter(targetClass: AnyClass, selector: Selector, closure: Any) throws -> Token {
-    try parametersCheck(targetClass: targetClass, selector: selector, mode: .after, closure: closure as AnyObject)
     return try swiftHookSerialQueue.sync {
-        try internalHook(targetClass: targetClass, selector: selector, mode: .after, hookClosure: closure as AnyObject)
+        try parametersCheck(targetClass: targetClass, selector: selector, mode: .after, closure: closure as AnyObject)
+        return try internalHook(targetClass: targetClass, selector: selector, mode: .after, hookClosure: closure as AnyObject)
     }
 }
 
@@ -173,9 +160,9 @@ Totally override the mehtod for all instances of the class. You can call origina
 */
 @discardableResult
 public func hookInstead(targetClass: AnyClass, selector: Selector, closure: Any) throws -> Token {
-    try parametersCheck(targetClass: targetClass, selector: selector, mode: .instead, closure: closure as AnyObject)
     return try swiftHookSerialQueue.sync {
-        try internalHook(targetClass: targetClass, selector: selector, mode: .instead, hookClosure: closure as AnyObject)
+        try parametersCheck(targetClass: targetClass, selector: selector, mode: .instead, closure: closure as AnyObject)
+        return try internalHook(targetClass: targetClass, selector: selector, mode: .instead, hookClosure: closure as AnyObject)
     }
 }
 
@@ -197,9 +184,9 @@ public func hookClassMethodBefore(targetClass: AnyClass, selector: Selector, clo
     guard let metaclass = object_getClass(targetClass) else {
         throw SwiftHookError.internalError(file: #file, line: #line)
     }
-    try parametersCheck(targetClass: metaclass, selector: selector, mode: .before, closure: closure as AnyObject)
     return try swiftHookSerialQueue.sync {
-        try internalHook(targetClass: metaclass, selector: selector, mode: .before, hookClosure: closure as AnyObject)
+        try parametersCheck(targetClass: metaclass, selector: selector, mode: .before, closure: closure as AnyObject)
+        return try internalHook(targetClass: metaclass, selector: selector, mode: .before, hookClosure: closure as AnyObject)
     }
 }
 
@@ -219,9 +206,9 @@ public func hookClassMethodAfter(targetClass: AnyClass, selector: Selector, clos
     guard let metaclass = object_getClass(targetClass) else {
         throw SwiftHookError.internalError(file: #file, line: #line)
     }
-    try parametersCheck(targetClass: metaclass, selector: selector, mode: .after, closure: closure as AnyObject)
     return try swiftHookSerialQueue.sync {
-        try internalHook(targetClass: metaclass, selector: selector, mode: .after, hookClosure: closure as AnyObject)
+        try parametersCheck(targetClass: metaclass, selector: selector, mode: .after, closure: closure as AnyObject)
+        return try internalHook(targetClass: metaclass, selector: selector, mode: .after, hookClosure: closure as AnyObject)
     }
 }
 
@@ -233,9 +220,9 @@ public func hookClassMethodInstead(targetClass: AnyClass, selector: Selector, cl
     guard let metaclass = object_getClass(targetClass) else {
         throw SwiftHookError.internalError(file: #file, line: #line)
     }
-    try parametersCheck(targetClass: metaclass, selector: selector, mode: .instead, closure: closure as AnyObject)
     return try swiftHookSerialQueue.sync {
-        try internalHook(targetClass: metaclass, selector: selector, mode: .instead, hookClosure: closure as AnyObject)
+        try parametersCheck(targetClass: metaclass, selector: selector, mode: .instead, closure: closure as AnyObject)
+        return try internalHook(targetClass: metaclass, selector: selector, mode: .instead, hookClosure: closure as AnyObject)
     }
 }
 
@@ -247,7 +234,8 @@ public func hookClassMethodInstead(targetClass: AnyClass, selector: Selector, cl
 @discardableResult
 public func hookDeallocBefore(object: NSObject, closure: @escaping @convention(block) () -> Void) throws -> Token {
     try swiftHookSerialQueue.sync {
-        try internalHook(object: object, selector: deallocSelector, mode: .before, hookClosure: closure as AnyObject)
+        try parametersCheck(object: object, selector: deallocSelector, mode: .before, closure: closure as AnyObject)
+        return try internalHook(object: object, selector: deallocSelector, mode: .before, hookClosure: closure as AnyObject)
     }
 }
 
@@ -257,7 +245,8 @@ Perform the hook closure after executing the instance dealloc method. This API o
 @discardableResult
 public func hookDeallocAfter(object: NSObject, closure: @escaping @convention(block) () -> Void) throws -> Token {
     try swiftHookSerialQueue.sync {
-        try internalHook(object: object, selector: deallocSelector, mode: .after, hookClosure: closure as AnyObject)
+        try parametersCheck(object: object, selector: deallocSelector, mode: .after, closure: closure as AnyObject)
+        return try internalHook(object: object, selector: deallocSelector, mode: .after, hookClosure: closure as AnyObject)
     }
 }
 
@@ -277,7 +266,8 @@ public func hookDeallocAfterByTail(object: AnyObject, closure: @escaping @conven
 @discardableResult
 public func hookDeallocInstead(object: NSObject, closure: @escaping @convention(block) (() -> Void) -> Void) throws -> Token {
     try swiftHookSerialQueue.sync {
-        try internalHook(object: object, selector: deallocSelector, mode: .instead, hookClosure: closure as AnyObject)
+        try parametersCheck(object: object, selector: deallocSelector, mode: .instead, closure: closure as AnyObject)
+        return try internalHook(object: object, selector: deallocSelector, mode: .instead, hookClosure: closure as AnyObject)
     }
 }
 
@@ -289,7 +279,8 @@ Perform the hook closure before executing the dealloc method of all instances of
 @discardableResult
 public func hookDeallocBefore(targetClass: NSObject.Type, closure: @escaping @convention(block) () -> Void) throws -> Token {
     try swiftHookSerialQueue.sync {
-        try internalHook(targetClass: targetClass, selector: deallocSelector, mode: .before, hookClosure: closure as AnyObject)
+        try parametersCheck(targetClass: targetClass, selector: deallocSelector, mode: .before, closure: closure as AnyObject)
+        return try internalHook(targetClass: targetClass, selector: deallocSelector, mode: .before, hookClosure: closure as AnyObject)
     }
 }
 
@@ -299,7 +290,8 @@ Perform the hook closure after executing the dealloc method of all instances of 
 @discardableResult
 public func hookDeallocAfter(targetClass: NSObject.Type, closure: @escaping @convention(block) () -> Void) throws -> Token {
     try swiftHookSerialQueue.sync {
-        try internalHook(targetClass: targetClass, selector: deallocSelector, mode: .after, hookClosure: closure as AnyObject)
+        try parametersCheck(targetClass: targetClass, selector: deallocSelector, mode: .after, closure: closure as AnyObject)
+        return try internalHook(targetClass: targetClass, selector: deallocSelector, mode: .after, hookClosure: closure as AnyObject)
     }
 }
 
@@ -309,6 +301,7 @@ Totally override the dealloc mehtod for all instances of the class. Have to call
 @discardableResult
 public func hookDeallocInstead(targetClass: NSObject.Type, closure: @escaping @convention(block) (() -> Void) -> Void) throws -> Token {
     try swiftHookSerialQueue.sync {
-        try internalHook(targetClass: targetClass, selector: deallocSelector, mode: .instead, hookClosure: closure as AnyObject)
+        try parametersCheck(targetClass: targetClass, selector: deallocSelector, mode: .instead, closure: closure as AnyObject)
+        return try internalHook(targetClass: targetClass, selector: deallocSelector, mode: .instead, hookClosure: closure as AnyObject)
     }
 }

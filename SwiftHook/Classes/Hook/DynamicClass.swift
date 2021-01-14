@@ -36,7 +36,7 @@ private class DynamicClassContext: Hashable {
         if getMethodWithoutSearchingSuperClasses(targetClass: dynamicClass, selector: selector) == nil {
             try overrideSuperMethod(targetClass: dynamicClass, selector: selector)
         }
-        getClassHookContext = try HookContext.init(targetClass: dynamicClass, selector: selector)
+        getClassHookContext = try HookContext.init(targetClass: dynamicClass, selector: selector, isSpecifiedInstance: true)
         try getClassHookContext.append(hookClosure: {_, _, _ in
             return baseClass
         } as @convention(block) ((AnyObject, Selector) -> AnyClass, AnyObject, Selector) -> AnyClass as AnyObject, mode: .instead)
@@ -59,6 +59,7 @@ private class DynamicClassContext: Hashable {
 
 /**
  Wrap dynamic class to object for specified instance hook. Return new class
+ The dynamic class can't be destroy because it's unsafe. Some code may refer to this class.
  */
 func wrapDynamicClass(object: AnyObject) throws -> AnyClass {
     guard let baseClass = object_getClass(object) else {
