@@ -55,6 +55,12 @@ extension SwiftHookError {
         case .internalError(file: let file, line: let line):
             code = 9
             description = "internalError => file: \(file), line: \(line). Please raise aa issue: https://github.com/623637646/SwiftHook/issues/new"
+        case .hookInstanceOfNSTaggedPointerString:
+            code = 10
+            description = "Unsupport to hook instance of NSTaggedPointerString."
+        case .hookKVOUnsupportedInstance:
+            code = 11
+            description = "Unable to hook a instance which is not support KVO."
         }
         return NSError.init(domain: "SwiftHook.SwiftHookError", code: code, userInfo: [NSLocalizedDescriptionKey: description])
         
@@ -276,15 +282,8 @@ public extension NSObject {
     }
     
     @discardableResult
-    @objc func sh_hookDeallocAfterByTail(closure: @escaping @convention(block) () -> Void) throws -> OCToken {
-        do {
-            return OCToken(token: try hookDeallocAfterByTail(object: self, closure: closure))
-        } catch {
-            guard let swiftHookError = error as? SwiftHookError else {
-                throw error
-            }
-            throw swiftHookError.getNSError
-        }
+    @objc func sh_hookDeallocAfterByTail(closure: @escaping @convention(block) () -> Void) -> OCToken {
+        return OCToken(token: hookDeallocAfterByTail(object: self, closure: closure))
     }
     
     @discardableResult

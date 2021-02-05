@@ -110,7 +110,7 @@
     @autoreleasepool {
         ObjectiveCTestObject *object = [[ObjectiveCTestObject alloc] init];
         NSError *error = nil;
-        [object sh_hookDeallocAfterByTailAndReturnError:&error closure:^{
+        [object sh_hookDeallocAfterByTailWithClosure:^{
             NSLog(@"released!");
         }];
         XCTAssertNil(error);
@@ -243,6 +243,19 @@
         
         [token cancelHook];
         [token2 cancelHook];
+    }
+    
+    {
+        NSString *obj = [[NSString alloc] initWithFormat:@"123"];
+        XCTAssertEqualObjects(NSStringFromClass([obj class]), @"NSTaggedPointerString");
+        XCTAssertEqualObjects(NSStringFromClass(object_getClass(obj)), @"NSTaggedPointerString");
+        NSError *error = nil;
+        [obj sh_hookBeforeSelector:@selector(length) closure:^{
+        } error:&error];
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error.domain, @"SwiftHook.SwiftHookError");
+        XCTAssertEqual(error.code, 10);
+        XCTAssertEqualObjects(error.localizedDescription, @"Unsupport to hook instance of NSTaggedPointerString.");
     }
     
 }

@@ -7,7 +7,7 @@
 //
 
 #import "SHMethodSignature.h"
-#import "BlockUtilities.h"
+#import "SHObjectiveCUtilities.h"
 
 @interface SHMethodSignature()
 
