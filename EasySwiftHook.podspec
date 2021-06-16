@@ -16,7 +16,7 @@ Pod::Spec.new do |spec|
   #
 
   spec.name         = "EasySwiftHook"
-  spec.version      = "3.1.0"
+  spec.version      = "3.2.0"
   spec.summary      = "Hook in Swift and Objective C by iOS runtime and libffi."
 
   # This description is used to generate tags and improve search results.
@@ -134,8 +134,6 @@ Pod::Spec.new do |spec|
   # spec.requires_arc = true
 
   # spec.xcconfig = { "HEADER_SEARCH_PATHS" => "$(SDKROOT)/usr/include/libxml2" }
-  spec.dependency 'libffi-iOS', '~> 3.3.3-iOS'
+  spec.dependency 'libffi-iOS', '~> 3.3.6-iOS'
   # The libffi-iOS's public header is not formal. Have to add this to avoid build error.
-  spec.pod_target_xcconfig = { "HEADER_SEARCH_PATHS" => "$(inherited) ${PODS_ROOT}/Headers/Public/libffi-iOS ${PODS_CONFIGURATION_BUILD_DIR}/libffi-iOS/libffi_iOS.framework/Headers" }
-
 end

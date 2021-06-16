@@ -8,6 +8,8 @@
 
 // MARK: - Constant
 
+import Foundation
+
 // queue
 private let swiftHookSerialQueue = DispatchQueue(label: "com.yanni.SwiftHook")
 
@@ -72,6 +74,7 @@ struct HookToken: Token {
 
 /**
  Perform the hook closure before executing specified instance's method.
+ WARNING: the object will retain the closure. So make sure the closure doesn't retain the object to avoid memory leak by cycle retain.
  */
 @discardableResult
 public func hookBefore(object: AnyObject, selector: Selector, closure: @escaping @convention(block) () -> Void) throws -> Token {
@@ -80,6 +83,7 @@ public func hookBefore(object: AnyObject, selector: Selector, closure: @escaping
 
 /**
  Perform the hook closure before executing specified instance's method.
+ WARNING: the object will retain the closure. So make sure the closure doesn't retain the object to avoid memory leak by cycle retain.
  */
 @discardableResult
 public func hookBefore(object: AnyObject, selector: Selector, closure: Any) throws -> Token {
@@ -91,6 +95,7 @@ public func hookBefore(object: AnyObject, selector: Selector, closure: Any) thro
 
 /**
  Perform the hook closure after executing specified instance's method.
+ WARNING: the object will retain the closure. So make sure the closure doesn't retain the object to avoid memory leak by cycle retain.
  */
 @discardableResult
 public func hookAfter(object: AnyObject, selector: Selector, closure: @escaping @convention(block) () -> Void) throws -> Token {
@@ -99,6 +104,7 @@ public func hookAfter(object: AnyObject, selector: Selector, closure: @escaping 
 
 /**
  Perform the hook closure after executing specified instance's method.
+ WARNING: the object will retain the closure. So make sure the closure doesn't retain the object to avoid memory leak by cycle retain.
  */
 @discardableResult
 public func hookAfter(object: AnyObject, selector: Selector, closure: Any) throws -> Token {
@@ -110,6 +116,7 @@ public func hookAfter(object: AnyObject, selector: Selector, closure: Any) throw
 
 /**
  Totally override the mehtod for specified instance. You can call original with the same parameters or different parameters. Don't even call the original method if you want.
+ WARNING: the object will retain the closure. So make sure the closure doesn't retain the object to avoid memory leak by cycle retain.
  */
 @discardableResult
 public func hookInstead(object: AnyObject, selector: Selector, closure: Any) throws -> Token {
@@ -256,6 +263,7 @@ public func hookDeallocAfter(object: NSObject, closure: @escaping @convention(bl
 
 /**
  Perform hook closure after executing the instance dealloc method. This isn't using runtime. Just add a "Tail" to the instance. The instance is the only object retaining "Tail" object. So when the instance releasing. "Tail" know this event. This API can work for NSObject and pure Swift object.
+ WARNING: the object will retain the closure. So make sure the closure doesn't retain the object to avoid memory leak by cycle retain.
  */
 @discardableResult
 public func hookDeallocAfterByTail(object: AnyObject, closure: @escaping @convention(block) () -> Void) -> Token {
